@@ -12,23 +12,23 @@ const languages = {
 };
 
 const questions = [
-  "What is the purpose of your visit to Nepal?",
+  "Hello,how are you?",
+  "Give me your passport and boarding pass please",
+  "Look at the camera please",
+  "Which country are you coming from?",
+  "Have you applied for a visa?",
+  "Have you paid the visa fee?",
+  "Welcome to Nepal, have a great time",
   "How long are you planning to stay?",
   "Where will you be staying during your visit?",
-  "Do you have a return ticket?",
   "Have you visited Nepal before?",
   "Are you traveling alone or with someone?",
   "Do you have sufficient funds for your stay?",
   "Have you booked your accommodation?",
   "What is your occupation?",
-  "Which country are you coming from?",
   "Are you carrying any restricted items?",
-  "Do you have any goods to declare?",
   "Are you visiting for tourism, business, or other reasons?",
-  "Can I see your passport, please?",
   "Do you have travel insurance?",
-  "Are you carrying any food, plants, or animals?",
-  "Have you received any vaccinations before travel?",
   "Do you plan to travel outside Kathmandu?",
   "Who is sponsoring your visit?",
   "Do you have any relatives or friends in Nepal?"
@@ -94,3 +94,4 @@ function speak(text, langCode) {
   speechSynthesis.cancel();
   speechSynthesis.speak(utter);
 }
+
