@@ -19,6 +19,7 @@ const questions = [
   "Have you applied for a visa?",
   "Have you paid the visa fee?",
   "Welcome to Nepal, have a great time",
+  "You can collect your luggage downstairs from the Customs area.",
   "How long are you planning to stay?",
   "Where will you be staying during your visit?",
   "Have you visited Nepal before?",
@@ -94,4 +95,5 @@ function speak(text, langCode) {
   speechSynthesis.cancel();
   speechSynthesis.speak(utter);
 }
+
 
