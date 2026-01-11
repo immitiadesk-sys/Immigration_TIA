@@ -37,7 +37,7 @@ const questions = [
 
 const questionsContainer = document.getElementById("questions");
 
-// Populate questions
+// Populate questions dynamically
 questions.forEach((q, i) => {
   const div = document.createElement("div");
   div.className = "question";
@@ -68,7 +68,7 @@ Object.entries(languages).forEach(([name, { code, flag }]) => {
   customButtons.appendChild(btn);
 });
 
-// Translation (Google Translate)
+// Translate text using Google Translate API
 async function translateText(text, targetLang, outputId) {
   const encoded = encodeURIComponent(text);
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encoded}`;
@@ -80,7 +80,7 @@ async function translateText(text, targetLang, outputId) {
 
     document.getElementById(outputId).innerText = translated;
 
-    // Cloud TTS
+    // Call backend TTS
     speak(translated, targetLang);
   } catch (err) {
     console.error("Translation failed:", err);
@@ -88,30 +88,20 @@ async function translateText(text, targetLang, outputId) {
   }
 }
 
-// 🔊 Google Cloud Text-to-Speech (REPLACES browser TTS)
+// 🔊 Backend TTS
 async function speak(text, langCode) {
   try {
-    const response = await fetch(
-      "https://texttospeech.googleapis.com/v1/text:synthesize?key=YOUR_API_KEY",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: { text },
-          voice: {
-            languageCode: langCode,
-            // Guaranteed Arabic voice
-            name: langCode === "ar" ? "ar-XA-Wavenet-A" : undefined
-          },
-          audioConfig: {
-            audioEncoding: "MP3"
-          }
-        })
-      }
-    );
+    const res = await fetch("/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, langCode })
+    });
 
-    const data = await response.json();
-    if (!data.audioContent) return;
+    const data = await res.json();
+    if (!data.audioContent) {
+      console.error("No audio returned from backend TTS");
+      return;
+    }
 
     const audio = document.getElementById("cloudTtsAudio");
     audio.src = "data:audio/mp3;base64," + data.audioContent;
@@ -119,6 +109,6 @@ async function speak(text, langCode) {
     audio.play();
 
   } catch (err) {
-    console.error("Google TTS error:", err);
+    console.error("TTS request failed:", err);
   }
 }
