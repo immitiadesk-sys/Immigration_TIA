@@ -6,9 +6,10 @@ const languages = {
   Japanese: { code: "ja", flag: "🇯🇵" },
   Korean: { code: "ko", flag: "🇰🇷" },
   French: { code: "fr", flag: "🇫🇷" },
-  Arabic: { code: "ar", flag: "🇸🇦" },
+  Bengali: { code: "bn", flag: "🇧🇩" },    // Replaced Arabic
   German: { code: "de", flag: "🇩🇪" },
-  Hindi: { code: "hi", flag: "🇮🇳" }
+  Hindi: { code: "hi", flag: "🇮🇳" },
+  Portuguese: { code: "pt", flag: "🇵🇹" }  // Added Portuguese
 };
 
 const questions = [
@@ -88,11 +89,30 @@ async function translateText(text, targetLang, outputId) {
   }
 }
 
-// Text-to-speech (browser TTS)
+// Improved Text-to-Speech function
 function speak(text, langCode) {
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = langCode;
   utter.rate = 1;
+
+  // Load all available voices
+  const voices = speechSynthesis.getVoices();
+
+  // Try to match voice by language code
+  let voice = voices.find(v => v.lang.toLowerCase().startsWith(langCode.toLowerCase()));
+
+  // Fallback to first voice if no match
+  if (!voice && voices.length > 0) {
+    voice = voices[0];
+  }
+
+  if (voice) {
+    utter.voice = voice;
+    utter.lang = voice.lang;
+  } else {
+    utter.lang = langCode; // fallback
+  }
+
+  // Cancel any ongoing speech and speak
   speechSynthesis.cancel();
   speechSynthesis.speak(utter);
 }
