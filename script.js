@@ -12,7 +12,7 @@ const languages = {
 };
 
 const questions = [
-  "Hello,how are you?",
+  "Hello, how are you?",
   "Give me your passport and boarding pass please",
   "Look at the camera please",
   "Which country are you coming from?",
@@ -37,7 +37,7 @@ const questions = [
 
 const questionsContainer = document.getElementById("questions");
 
-// Populate questions dynamically
+// Populate questions
 questions.forEach((q, i) => {
   const div = document.createElement("div");
   div.className = "question";
@@ -45,17 +45,18 @@ questions.forEach((q, i) => {
     <strong>${i + 1}. ${q}</strong>
     <div class="button-group">
       ${Object.entries(languages)
-        .map(([name, { code, flag }]) => 
-          `<button onclick="translateText('${q}', '${code}', 'output-${i}')">${flag} ${name}</button>`
+        .map(
+          ([name, { code, flag }]) =>
+            `<button onclick="translateText('${q}', '${code}', 'output-${i}')">${flag} ${name}</button>`
         )
-        .join('')}
+        .join("")}
     </div>
     <div class="translation-output" id="output-${i}"></div>
   `;
   questionsContainer.appendChild(div);
 });
 
-// Add custom buttons
+// Custom input buttons
 const customButtons = document.getElementById("customButtons");
 Object.entries(languages).forEach(([name, { code, flag }]) => {
   const btn = document.createElement("button");
@@ -67,7 +68,7 @@ Object.entries(languages).forEach(([name, { code, flag }]) => {
   customButtons.appendChild(btn);
 });
 
-// Translate text using Google Translate API
+// Translation (Google Translate)
 async function translateText(text, targetLang, outputId) {
   const encoded = encodeURIComponent(text);
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encoded}`;
@@ -79,7 +80,7 @@ async function translateText(text, targetLang, outputId) {
 
     document.getElementById(outputId).innerText = translated;
 
-    // Auto TTS
+    // Cloud TTS
     speak(translated, targetLang);
   } catch (err) {
     console.error("Translation failed:", err);
@@ -87,13 +88,37 @@ async function translateText(text, targetLang, outputId) {
   }
 }
 
-// Text-to-speech
-function speak(text, langCode) {
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = langCode;
-  utter.rate = 1;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utter);
+// 🔊 Google Cloud Text-to-Speech (REPLACES browser TTS)
+async function speak(text, langCode) {
+  try {
+    const response = await fetch(
+      "https://texttospeech.googleapis.com/v1/text:synthesize?key=YOUR_API_KEY",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input: { text },
+          voice: {
+            languageCode: langCode,
+            // Guaranteed Arabic voice
+            name: langCode === "ar" ? "ar-XA-Wavenet-A" : undefined
+          },
+          audioConfig: {
+            audioEncoding: "MP3"
+          }
+        })
+      }
+    );
+
+    const data = await response.json();
+    if (!data.audioContent) return;
+
+    const audio = document.getElementById("cloudTtsAudio");
+    audio.src = "data:audio/mp3;base64," + data.audioContent;
+    audio.currentTime = 0;
+    audio.play();
+
+  } catch (err) {
+    console.error("Google TTS error:", err);
+  }
 }
-
-
