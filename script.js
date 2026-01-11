@@ -1,17 +1,19 @@
+// ===== Languages with color themes =====
 const languages = {
-  Spanish: { code: "es", flag: "🇪🇸" },
-  Italian: { code: "it", flag: "🇮🇹" },
-  Russian: { code: "ru", flag: "🇷🇺" },
-  Chinese: { code: "zh-CN", flag: "🇨🇳" },
-  Japanese: { code: "ja", flag: "🇯🇵" },
-  Korean: { code: "ko", flag: "🇰🇷" },
-  French: { code: "fr", flag: "🇫🇷" },
-  Bengali: { code: "bn", flag: "🇧🇩" },    // Replaced Arabic
-  German: { code: "de", flag: "🇩🇪" },
-  Hindi: { code: "hi", flag: "🇮🇳" },
-  Portuguese: { code: "pt", flag: "🇵🇹" }  // Added Portuguese
+  Spanish: { code: "es", flag: "🇪🇸", color: "#F94144" },    // Red
+  Italian: { code: "it", flag: "🇮🇹", color: "#90BE6D" },    // Green
+  Russian: { code: "ru", flag: "🇷🇺", color: "#577590" },    // Blue
+  Chinese: { code: "zh-CN", flag: "🇨🇳", color: "#F3722C" }, // Orange
+  Japanese: { code: "ja", flag: "🇯🇵", color: "#F9C74F" },  // Yellow
+  Korean: { code: "ko", flag: "🇰🇷", color: "#43AA8B" },    // Teal
+  French: { code: "fr", flag: "🇫🇷", color: "#277DA1" },    // Dark Blue
+  Bengali: { code: "bn", flag: "🇧🇩", color: "#FF6D00" },   // Deep Orange
+  German: { code: "de", flag: "🇩🇪", color: "#6A4C93" },    // Purple
+  Hindi: { code: "hi", flag: "🇮🇳", color: "#F3722C" },     // Orange
+  Portuguese: { code: "pt", flag: "🇵🇹", color: "#43AA8B" } // Teal
 };
 
+// ===== Questions =====
 const questions = [
   "Hello,how are you?",
   "Give me your passport and boarding pass please",
@@ -37,8 +39,10 @@ const questions = [
 ];
 
 const questionsContainer = document.getElementById("questions");
+const utterances = {};          // Store speech utterances per question
+const highlightIntervals = {};  // Store highlighting intervals
 
-// Populate questions dynamically
+// ===== Populate questions dynamically =====
 questions.forEach((q, i) => {
   const div = document.createElement("div");
   div.className = "question";
@@ -47,30 +51,43 @@ questions.forEach((q, i) => {
     <div class="button-group">
       ${Object.entries(languages)
         .map(
-          ([name, { code, flag }]) =>
-            `<button onclick="translateText('${q}', '${code}', 'output-${i}')">${flag} ${name}</button>`
+          ([name, { code, flag, color }]) =>
+            `<button 
+              style="background-color: ${color}; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 5px; cursor: pointer;"
+              onclick="translateText('${q}', '${code}', 'output-${i}', 'translit-${i}')">
+              ${flag} ${name}
+            </button>`
         )
         .join('')}
     </div>
     <div class="translation-output" id="output-${i}"></div>
+    <div class="transliteration-output" id="translit-${i}" style="color: gray; font-style: italic;"></div>
+    <button id="playBtn-${i}" onclick="toggleSpeech('output-${i}', '${i}')">▶️ Play</button>
   `;
   questionsContainer.appendChild(div);
 });
 
-// Add custom buttons
+// ===== Custom input buttons =====
 const customButtons = document.getElementById("customButtons");
-Object.entries(languages).forEach(([name, { code, flag }]) => {
+Object.entries(languages).forEach(([name, { code, flag, color }]) => {
   const btn = document.createElement("button");
   btn.innerHTML = `${flag} ${name}`;
+  btn.style.backgroundColor = color;
+  btn.style.color = "white";
+  btn.style.border = "none";
+  btn.style.padding = "5px 10px";
+  btn.style.margin = "2px";
+  btn.style.borderRadius = "5px";
+  btn.style.cursor = "pointer";
   btn.onclick = () => {
     const text = document.getElementById("customInput").value.trim();
-    if (text) translateText(text, code, "customOutput");
+    if (text) translateText(text, code, "customOutput", "customTranslit");
   };
   customButtons.appendChild(btn);
 });
 
-// Translate text using Google Translate API
-async function translateText(text, targetLang, outputId) {
+// ===== Translate text using Google Translate API =====
+async function translateText(text, targetLang, outputId, translitId) {
   const encoded = encodeURIComponent(text);
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encoded}`;
 
@@ -78,41 +95,63 @@ async function translateText(text, targetLang, outputId) {
     const res = await fetch(url);
     const data = await res.json();
     const translated = data[0][0][0];
+    let transliteration = "";
+
+    try { transliteration = data[0][0][3] || ""; } catch { transliteration = ""; }
 
     document.getElementById(outputId).innerText = translated;
+    document.getElementById(translitId).innerText = transliteration;
 
-    // Auto TTS
-    speak(translated, targetLang);
+    // Prepare utterance with TTS
+    const utter = new SpeechSynthesisUtterance(translated);
+    utter.lang = targetLang;
+    utter.rate = 1;
+
+    utter.onstart = () => highlightText(outputId);
+    utter.onend = () => stopHighlight(outputId);
+
+    utterances[outputId] = utter;
+
   } catch (err) {
     console.error("Translation failed:", err);
     document.getElementById(outputId).innerText = "Error translating text.";
+    document.getElementById(translitId).innerText = "";
   }
 }
 
-// Improved Text-to-Speech function
-function speak(text, langCode) {
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.rate = 1;
+// ===== Play/Pause TTS with dynamic button =====
+function toggleSpeech(outputId, idx) {
+  const btn = document.getElementById(`playBtn-${idx}`);
+  const utter = utterances[outputId];
+  if (!utter) return;
 
-  // Load all available voices
-  const voices = speechSynthesis.getVoices();
-
-  // Try to match voice by language code
-  let voice = voices.find(v => v.lang.toLowerCase().startsWith(langCode.toLowerCase()));
-
-  // Fallback to first voice if no match
-  if (!voice && voices.length > 0) {
-    voice = voices[0];
-  }
-
-  if (voice) {
-    utter.voice = voice;
-    utter.lang = voice.lang;
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    btn.innerText = "▶️ Play";
   } else {
-    utter.lang = langCode; // fallback
+    speechSynthesis.speak(utter);
+    btn.innerText = "⏸️ Pause";
   }
+}
 
-  // Cancel any ongoing speech and speak
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utter);
+// ===== Highlight translation word by word =====
+function highlightText(outputId) {
+  const el = document.getElementById(outputId);
+  const words = el.innerText.split(" ");
+  let i = 0;
+
+  highlightIntervals[outputId] = setInterval(() => {
+    el.innerHTML = words.map((w, idx) =>
+      idx === i ? `<span style="background: yellow">${w}</span>` : w
+    ).join(" ");
+    i++;
+    if (i > words.length) clearInterval(highlightIntervals[outputId]);
+  }, 400); // Adjust speed as needed
+}
+
+// ===== Stop highlighting =====
+function stopHighlight(outputId) {
+  clearInterval(highlightIntervals[outputId]);
+  const el = document.getElementById(outputId);
+  el.innerHTML = el.innerText; // Remove span highlights
 }
