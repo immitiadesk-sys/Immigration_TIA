@@ -12,7 +12,7 @@ const languages = {
 };
 
 const questions = [
-  "Hello, how are you?",
+  "Hello,how are you?",
   "Give me your passport and boarding pass please",
   "Look at the camera please",
   "Which country are you coming from?",
@@ -49,14 +49,14 @@ questions.forEach((q, i) => {
           ([name, { code, flag }]) =>
             `<button onclick="translateText('${q}', '${code}', 'output-${i}')">${flag} ${name}</button>`
         )
-        .join("")}
+        .join('')}
     </div>
     <div class="translation-output" id="output-${i}"></div>
   `;
   questionsContainer.appendChild(div);
 });
 
-// Custom input buttons
+// Add custom buttons
 const customButtons = document.getElementById("customButtons");
 Object.entries(languages).forEach(([name, { code, flag }]) => {
   const btn = document.createElement("button");
@@ -80,7 +80,7 @@ async function translateText(text, targetLang, outputId) {
 
     document.getElementById(outputId).innerText = translated;
 
-    // Call backend TTS
+    // Auto TTS
     speak(translated, targetLang);
   } catch (err) {
     console.error("Translation failed:", err);
@@ -88,27 +88,11 @@ async function translateText(text, targetLang, outputId) {
   }
 }
 
-// 🔊 Backend TTS
-async function speak(text, langCode) {
-  try {
-    const res = await fetch("/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, langCode })
-    });
-
-    const data = await res.json();
-    if (!data.audioContent) {
-      console.error("No audio returned from backend TTS");
-      return;
-    }
-
-    const audio = document.getElementById("cloudTtsAudio");
-    audio.src = "data:audio/mp3;base64," + data.audioContent;
-    audio.currentTime = 0;
-    audio.play();
-
-  } catch (err) {
-    console.error("TTS request failed:", err);
-  }
+// Text-to-speech (browser TTS)
+function speak(text, langCode) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = langCode;
+  utter.rate = 1;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
 }
