@@ -7,7 +7,6 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
-/* ===== Container ===== */
 .container {
   max-width: 950px;
   margin: 40px auto;
@@ -17,7 +16,6 @@ body {
   padding: 30px 40px;
 }
 
-/* ===== Header ===== */
 header {
   text-align: center;
   margin-bottom: 25px;
@@ -39,7 +37,6 @@ header p {
   font-size: 0.95rem;
 }
 
-/* ===== Question Card ===== */
 .question {
   background: #f9f9f9;
   padding: 12px 15px;
@@ -54,7 +51,6 @@ header p {
   box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 }
 
-/* ===== Buttons ===== */
 .button-group {
   display: flex;
   flex-wrap: wrap;
@@ -66,7 +62,6 @@ button {
   display: flex;
   align-items: center;
   gap: 6px;
-  background-color: #009688;
   color: white;
   border: none;
   border-radius: 999px;
@@ -77,11 +72,9 @@ button {
 }
 
 button:hover {
-  background-color: #004d40;
   transform: scale(1.05);
 }
 
-/* ===== Translation ===== */
 .translation-output {
   margin-top: 8px;
   background: #e0f2f1;
@@ -96,14 +89,12 @@ button:hover {
   color: #777;
 }
 
-/* ===== Highlight ===== */
 .translation-output span {
   background: #fff3a0;
   padding: 2px 4px;
   border-radius: 4px;
 }
 
-/* ===== Custom Section ===== */
 #custom-section {
   margin-top: 40px;
 }
@@ -117,7 +108,6 @@ button:hover {
   resize: none;
 }
 
-/* ===== Footer ===== */
 footer {
   text-align: center;
   padding: 20px;
@@ -125,6 +115,28 @@ footer {
   color: white;
   margin-top: 30px;
   font-size: 0.9rem;
+}
+
+/* ===== Voice Selector ===== */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#voiceGender {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #ccc;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: white;
+}
+
+body.dark #voiceGender {
+  background: #1f2933;
+  color: #e5e7eb;
+  border-color: #374151;
 }
 
 /* ===== Dark Mode Toggle ===== */
