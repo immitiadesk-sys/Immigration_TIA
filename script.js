@@ -28,14 +28,14 @@ const questions = [
   "Have you visited Nepal before?",
   "Are you traveling alone or with someone?",
   "Do you have sufficient funds for your stay?",
-  "Have you booked your accommodation?",
+  "Thank you for visiting Nepal. Have a safe flight.",
   "What is your occupation?",
   "Are you carrying any restricted items?",
   "Are you visiting for tourism, business, or other reasons?",
   "Do you have travel insurance?",
-  "Do you plan to travel outside Kathmandu?",
+  "How was your Nepal stay? Do you like Nepal? ",
   "Who is sponsoring your visit?",
-  "Do you have any relatives or friends in Nepal?"
+  "Do you have any feedback or complaint regarding your stay in  Nepal?"
 ];
 
 const questionsContainer = document.getElementById("questions");
@@ -119,20 +119,6 @@ async function translateText(text, targetLang, outputId, translitId) {
   }
 }
 
-// ===== Play/Pause TTS with dynamic button =====
-function toggleSpeech(outputId, idx) {
-  const btn = document.getElementById(`playBtn-${idx}`);
-  const utter = utterances[outputId];
-  if (!utter) return;
-
-  if (speechSynthesis.speaking) {
-    speechSynthesis.cancel();
-    btn.innerText = "▶️ Play";
-  } else {
-    speechSynthesis.speak(utter);
-    btn.innerText = "⏸️ Pause";
-  }
-}
 
 // ===== Highlight translation word by word =====
 function highlightText(outputId) {
@@ -155,3 +141,4 @@ function stopHighlight(outputId) {
   const el = document.getElementById(outputId);
   el.innerHTML = el.innerText; // Remove span highlights
 }
+
