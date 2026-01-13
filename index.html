@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nepal Immigration Translator</title>
 
+  <!-- Favicon: Emblem of Nepal -->
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/e/e8/Emblem_of_Nepal.svg" type="image/svg+xml">
+
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
@@ -16,11 +19,19 @@
       <div class="header-top">
         <h1>🇳🇵 Nepal Immigration Translator</h1>
 
-        <!-- 🌙 Dark Mode Toggle -->
-        <label class="switch">
-          <input type="checkbox" id="darkToggle">
-          <span class="slider"></span>
-        </label>
+        <div class="controls">
+          <!-- 🎙️ Voice Selector -->
+          <select id="voiceGender">
+            <option value="female">Female Voice</option>
+            <option value="male">Male Voice</option>
+          </select>
+
+          <!-- 🌙 Dark Mode Toggle -->
+          <label class="switch">
+            <input type="checkbox" id="darkToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
       </div>
 
       <p>Quickly translate immigration officer questions into major world languages</p>
