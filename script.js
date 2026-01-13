@@ -1,21 +1,21 @@
-// ===== Languages with color themes =====
+// ===== Languages =====
 const languages = {
-  Spanish: { code: "es", flag: "🇪🇸", color: "#F94144" },    // Red
-  Italian: { code: "it", flag: "🇮🇹", color: "#90BE6D" },    // Green
-  Russian: { code: "ru", flag: "🇷🇺", color: "#577590" },    // Blue
-  Chinese: { code: "zh-CN", flag: "🇨🇳", color: "#F3722C" }, // Orange
-  Japanese: { code: "ja", flag: "🇯🇵", color: "#F9C74F" },  // Yellow
-  Korean: { code: "ko", flag: "🇰🇷", color: "#43AA8B" },    // Teal
-  French: { code: "fr", flag: "🇫🇷", color: "#277DA1" },    // Dark Blue
-  Bengali: { code: "bn", flag: "🇧🇩", color: "#FF6D00" },   // Deep Orange
-  German: { code: "de", flag: "🇩🇪", color: "#6A4C93" },    // Purple
-  Hindi: { code: "hi", flag: "🇮🇳", color: "#F3722C" },     // Orange
-  Portuguese: { code: "pt", flag: "🇵🇹", color: "#43AA8B" } // Teal
+  Spanish: { code: "es", flag: "🇪🇸" },
+  Italian: { code: "it", flag: "🇮🇹" },
+  Russian: { code: "ru", flag: "🇷🇺" },
+  Chinese: { code: "zh-CN", flag: "🇨🇳" },
+  Japanese: { code: "ja", flag: "🇯🇵" },
+  Korean: { code: "ko", flag: "🇰🇷" },
+  French: { code: "fr", flag: "🇫🇷" },
+  Bengali: { code: "bn", flag: "🇧🇩" },
+  German: { code: "de", flag: "🇩🇪" },
+  Hindi: { code: "hi", flag: "🇮🇳" },
+  Portuguese: { code: "pt", flag: "🇵🇹" }
 };
 
 // ===== Questions =====
 const questions = [
-  "Hello,how are you?",
+  "Hello, how are you?",
   "Give me your passport and boarding pass please",
   "Look at the camera please",
   "Which country are you coming from?",
@@ -28,57 +28,39 @@ const questions = [
   "Have you visited Nepal before?",
   "Are you traveling alone or with someone?",
   "Do you have sufficient funds for your stay?",
-  "Thank you for visiting Nepal. Have a safe flight.",
-  "What is your occupation?",
-  "Are you carrying any restricted items?",
-  "Are you visiting for tourism, business, or other reasons?",
-  "Do you have travel insurance?",
-  "How was your Nepal stay? Do you like Nepal? ",
-  "Who is sponsoring your visit?",
-  "Do you have any feedback or complaint regarding your stay in  Nepal?"
+  "Thank you for visiting Nepal. Have a safe flight."
 ];
 
 const questionsContainer = document.getElementById("questions");
-const utterances = {};          // Store speech utterances per question
-const highlightIntervals = {};  // Store highlighting intervals
+const highlightIntervals = {};
 
-// ===== Populate questions dynamically =====
+// ===== Populate Questions =====
 questions.forEach((q, i) => {
   const div = document.createElement("div");
   div.className = "question";
+
   div.innerHTML = `
     <strong>${i + 1}. ${q}</strong>
     <div class="button-group">
-      ${Object.entries(languages)
-        .map(
-          ([name, { code, flag, color }]) =>
-            `<button 
-              style="background-color: ${color}; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 5px; cursor: pointer;"
-              onclick="translateText('${q}', '${code}', 'output-${i}', 'translit-${i}')">
-              ${flag} ${name}
-            </button>`
-        )
-        .join('')}
+      ${Object.entries(languages).map(
+        ([name, { code, flag }]) =>
+          `<button onclick="translateText('${q}', '${code}', 'output-${i}', 'translit-${i}')">
+            ${flag} ${name}
+          </button>`
+      ).join("")}
     </div>
     <div class="translation-output" id="output-${i}"></div>
-    <div class="transliteration-output" id="translit-${i}" style="color: gray; font-style: italic;"></div>
-    <button id="playBtn-${i}" onclick="toggleSpeech('output-${i}', '${i}')">▶️ Play</button>
+    <div class="transliteration-output" id="translit-${i}"></div>
   `;
+
   questionsContainer.appendChild(div);
 });
 
-// ===== Custom input buttons =====
+// ===== Custom Buttons =====
 const customButtons = document.getElementById("customButtons");
-Object.entries(languages).forEach(([name, { code, flag, color }]) => {
+Object.entries(languages).forEach(([name, { code, flag }]) => {
   const btn = document.createElement("button");
   btn.innerHTML = `${flag} ${name}`;
-  btn.style.backgroundColor = color;
-  btn.style.color = "white";
-  btn.style.border = "none";
-  btn.style.padding = "5px 10px";
-  btn.style.margin = "2px";
-  btn.style.borderRadius = "5px";
-  btn.style.cursor = "pointer";
   btn.onclick = () => {
     const text = document.getElementById("customInput").value.trim();
     if (text) translateText(text, code, "customOutput", "customTranslit");
@@ -86,59 +68,64 @@ Object.entries(languages).forEach(([name, { code, flag, color }]) => {
   customButtons.appendChild(btn);
 });
 
-// ===== Translate text using Google Translate API =====
+// ===== Translate + Auto TTS =====
 async function translateText(text, targetLang, outputId, translitId) {
   const encoded = encodeURIComponent(text);
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encoded}`;
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    const translated = data[0][0][0];
-    let transliteration = "";
+  const res = await fetch(url);
+  const data = await res.json();
 
-    try { transliteration = data[0][0][3] || ""; } catch { transliteration = ""; }
+  const translated = data[0][0][0];
+  const translit = data[0][0][3] || "";
 
-    document.getElementById(outputId).innerText = translated;
-    document.getElementById(translitId).innerText = transliteration;
+  document.getElementById(outputId).innerText = translated;
+  document.getElementById(translitId).innerText = translit;
 
-    // Prepare utterance with TTS
-    const utter = new SpeechSynthesisUtterance(translated);
-    utter.lang = targetLang;
-    utter.rate = 1;
+  speechSynthesis.cancel();
 
-    utter.onstart = () => highlightText(outputId);
-    utter.onend = () => stopHighlight(outputId);
+  const utter = new SpeechSynthesisUtterance(translated);
+  utter.lang = targetLang;
 
-    utterances[outputId] = utter;
+  utter.onstart = () => highlightText(outputId);
+  utter.onend = () => stopHighlight(outputId);
 
-  } catch (err) {
-    console.error("Translation failed:", err);
-    document.getElementById(outputId).innerText = "Error translating text.";
-    document.getElementById(translitId).innerText = "";
-  }
+  speechSynthesis.speak(utter);
 }
 
-
-// ===== Highlight translation word by word =====
-function highlightText(outputId) {
-  const el = document.getElementById(outputId);
+// ===== Highlight =====
+function highlightText(id) {
+  const el = document.getElementById(id);
   const words = el.innerText.split(" ");
   let i = 0;
 
-  highlightIntervals[outputId] = setInterval(() => {
+  highlightIntervals[id] = setInterval(() => {
     el.innerHTML = words.map((w, idx) =>
-      idx === i ? `<span style="background: yellow">${w}</span>` : w
+      idx === i ? `<span>${w}</span>` : w
     ).join(" ");
     i++;
-    if (i > words.length) clearInterval(highlightIntervals[outputId]);
-  }, 400); // Adjust speed as needed
+    if (i > words.length) clearInterval(highlightIntervals[id]);
+  }, 400);
 }
 
-// ===== Stop highlighting =====
-function stopHighlight(outputId) {
-  clearInterval(highlightIntervals[outputId]);
-  const el = document.getElementById(outputId);
-  el.innerHTML = el.innerText; // Remove span highlights
+function stopHighlight(id) {
+  clearInterval(highlightIntervals[id]);
+  const el = document.getElementById(id);
+  el.innerHTML = el.innerText;
 }
 
+// ===== Dark Mode Logic =====
+const toggle = document.getElementById("darkToggle");
+
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+  toggle.checked = true;
+}
+
+toggle.addEventListener("change", () => {
+  document.body.classList.toggle("dark");
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("dark") ? "dark" : "light"
+  );
+});
