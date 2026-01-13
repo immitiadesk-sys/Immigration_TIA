@@ -43,17 +43,17 @@ const utterances = {};          // Store speech utterances per question
 const highlightIntervals = {};  // Store highlighting intervals
 let availableVoices = [];
 
-// Load browser voices
+// ===== Load voices =====
 function loadVoices() {
   availableVoices = speechSynthesis.getVoices();
 }
 speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
 
-// ===== Helper: Get any available voice for the language =====
+// ===== Helper: Get any voice for the language =====
 function getPreferredVoice(lang) {
   const matches = availableVoices.filter(v => v.lang.startsWith(lang));
-  return matches[0] || availableVoices[0] || null; // fallback to first available
+  return matches[0] || availableVoices[0] || null;
 }
 
 // ===== Populate questions dynamically =====
@@ -99,7 +99,7 @@ Object.entries(languages).forEach(([name, { code, flag, color }]) => {
   customButtons.appendChild(btn);
 });
 
-// ===== Translate text using Google Translate API =====
+// ===== Translate text and auto-play TTS =====
 async function translateText(text, targetLang, outputId, translitId) {
   const encoded = encodeURIComponent(text);
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encoded}`;
@@ -109,19 +109,17 @@ async function translateText(text, targetLang, outputId, translitId) {
     const data = await res.json();
     const translated = data[0][0][0];
     let transliteration = "";
-
     try { transliteration = data[0][0][3] || ""; } catch { transliteration = ""; }
 
     document.getElementById(outputId).innerText = translated;
     document.getElementById(translitId).innerText = transliteration;
 
-    // Prepare utterance with TTS
+    // Prepare utterance
     const utter = new SpeechSynthesisUtterance(translated);
     utter.lang = targetLang;
     const voice = getPreferredVoice(targetLang);
     if (voice) utter.voice = voice;
     utter.rate = 1;
-
     utter.onstart = () => highlightText(outputId);
     utter.onend = () => stopHighlight(outputId);
 
