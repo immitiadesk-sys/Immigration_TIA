@@ -1,4 +1,4 @@
-// ===== Languages with colors =====
+// ===== Languages with color themes =====
 const languages = {
   Spanish: { code: "es", flag: "🇪🇸", color: "#F94144" },
   Italian: { code: "it", flag: "🇮🇹", color: "#90BE6D" },
@@ -15,7 +15,7 @@ const languages = {
 
 // ===== Questions =====
 const questions = [
-  "Hello, how are you?",
+  "Hello,how are you?",
   "Give me your passport and boarding pass please",
   "Look at the camera please",
   "Which country are you coming from?",
@@ -28,41 +28,70 @@ const questions = [
   "Have you visited Nepal before?",
   "Are you traveling alone or with someone?",
   "Do you have sufficient funds for your stay?",
-  "Thank you for visiting Nepal. Have a safe flight."
+  "Thank you for visiting Nepal. Have a safe flight.",
+  "What is your occupation?",
+  "Are you carrying any restricted items?",
+  "Are you visiting for tourism, business, or other reasons?",
+  "Do you have travel insurance?",
+  "How was your Nepal stay? Do you like Nepal? ",
+  "Who is sponsoring your visit?",
+  "Do you have any feedback or complaint regarding your stay in  Nepal?"
 ];
 
 const questionsContainer = document.getElementById("questions");
-const highlightIntervals = {};
+const utterances = {};          // Store speech utterances per question
+const highlightIntervals = {};  // Store highlighting intervals
+let availableVoices = [];
 
-// ===== Populate Questions with colored buttons =====
+// Load browser voices
+function loadVoices() {
+  availableVoices = speechSynthesis.getVoices();
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+// ===== Helper: Get any available voice for the language =====
+function getPreferredVoice(lang) {
+  const matches = availableVoices.filter(v => v.lang.startsWith(lang));
+  return matches[0] || availableVoices[0] || null; // fallback to first available
+}
+
+// ===== Populate questions dynamically =====
 questions.forEach((q, i) => {
   const div = document.createElement("div");
   div.className = "question";
-
   div.innerHTML = `
     <strong>${i + 1}. ${q}</strong>
     <div class="button-group">
-      ${Object.entries(languages).map(
-        ([name, { code, flag, color }]) =>
-          `<button 
-            style="background-color:${color}"
-            onclick="translateText('${q}', '${code}', 'output-${i}', 'translit-${i}')">
-            ${flag} ${name}
-          </button>`
-      ).join("")}
+      ${Object.entries(languages)
+        .map(
+          ([name, { code, flag, color }]) =>
+            `<button 
+              style="background-color: ${color}; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 5px; cursor: pointer;"
+              onclick="translateText('${q}', '${code}', 'output-${i}', 'translit-${i}')">
+              ${flag} ${name}
+            </button>`
+        )
+        .join('')}
     </div>
     <div class="translation-output" id="output-${i}"></div>
-    <div class="transliteration-output" id="translit-${i}"></div>
+    <div class="transliteration-output" id="translit-${i}" style="color: gray; font-style: italic;"></div>
   `;
   questionsContainer.appendChild(div);
 });
 
-// ===== Custom Buttons =====
+// ===== Custom input buttons =====
 const customButtons = document.getElementById("customButtons");
 Object.entries(languages).forEach(([name, { code, flag, color }]) => {
   const btn = document.createElement("button");
   btn.innerHTML = `${flag} ${name}`;
   btn.style.backgroundColor = color;
+  btn.style.color = "white";
+  btn.style.border = "none";
+  btn.style.padding = "5px 10px";
+  btn.style.margin = "2px";
+  btn.style.borderRadius = "5px";
+  btn.style.cursor = "pointer";
   btn.onclick = () => {
     const text = document.getElementById("customInput").value.trim();
     if (text) translateText(text, code, "customOutput", "customTranslit");
@@ -70,101 +99,69 @@ Object.entries(languages).forEach(([name, { code, flag, color }]) => {
   customButtons.appendChild(btn);
 });
 
-// ===== Voice selector =====
-let availableVoices = [];
-const voiceSelect = document.getElementById("voiceGender");
-
-function loadVoices() {
-  availableVoices = speechSynthesis.getVoices();
-}
-speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
-
-// Restore saved voice preference
-const savedGender = localStorage.getItem("voiceGender");
-if (savedGender) voiceSelect.value = savedGender;
-
-voiceSelect.addEventListener("change", () => {
-  localStorage.setItem("voiceGender", voiceSelect.value);
-});
-
-// ===== Get preferred voice =====
-function getPreferredVoice(lang) {
-  const gender = voiceSelect.value;
-  const matches = availableVoices.filter(v => v.lang.startsWith(lang));
-  if (!matches.length) return null;
-
-  if (gender === "female") {
-    return matches.find(v =>
-      /female|woman|zira|susan|samantha|karen/i.test(v.name)
-    ) || matches[0];
-  }
-  return matches.find(v =>
-    /male|man|david|mark|alex|daniel/i.test(v.name)
-  ) || matches[0];
-}
-
-// ===== Translate + Auto TTS =====
+// ===== Translate text using Google Translate API =====
 async function translateText(text, targetLang, outputId, translitId) {
   const encoded = encodeURIComponent(text);
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encoded}`;
 
-  const res = await fetch(url);
-  const data = await res.json();
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const translated = data[0][0][0];
+    let transliteration = "";
 
-  const translated = data[0][0][0];
-  const translit = data[0][0][3] || "";
+    try { transliteration = data[0][0][3] || ""; } catch { transliteration = ""; }
 
-  document.getElementById(outputId).innerText = translated;
-  document.getElementById(translitId).innerText = translit;
+    document.getElementById(outputId).innerText = translated;
+    document.getElementById(translitId).innerText = transliteration;
 
-  speechSynthesis.cancel();
+    // Prepare utterance with TTS
+    const utter = new SpeechSynthesisUtterance(translated);
+    utter.lang = targetLang;
+    const voice = getPreferredVoice(targetLang);
+    if (voice) utter.voice = voice;
+    utter.rate = 1;
 
-  const utter = new SpeechSynthesisUtterance(translated);
-  utter.lang = targetLang;
+    utter.onstart = () => highlightText(outputId);
+    utter.onend = () => stopHighlight(outputId);
 
-  const selectedVoice = getPreferredVoice(targetLang);
-  if (selectedVoice) utter.voice = selectedVoice;
+    utterances[outputId] = utter;
 
-  utter.onstart = () => highlightText(outputId);
-  utter.onend = () => stopHighlight(outputId);
+    // Auto-play TTS
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utter);
 
-  speechSynthesis.speak(utter);
+  } catch (err) {
+    console.error("Translation failed:", err);
+    document.getElementById(outputId).innerText = "Error translating text.";
+    document.getElementById(translitId).innerText = "";
+  }
 }
 
-// ===== Highlight =====
-function highlightText(id) {
-  const el = document.getElementById(id);
+// ===== Highlight translation word by word =====
+function highlightText(outputId) {
+  const el = document.getElementById(outputId);
   const words = el.innerText.split(" ");
   let i = 0;
 
-  highlightIntervals[id] = setInterval(() => {
+  highlightIntervals[outputId] = setInterval(() => {
     el.innerHTML = words.map((w, idx) =>
-      idx === i ? `<span>${w}</span>` : w
+      idx === i ? `<span style="background: yellow">${w}</span>` : w
     ).join(" ");
     i++;
-    if (i > words.length) clearInterval(highlightIntervals[id]);
+    if (i > words.length) clearInterval(highlightIntervals[outputId]);
   }, 400);
 }
 
-function stopHighlight(id) {
-  clearInterval(highlightIntervals[id]);
-  const el = document.getElementById(id);
+// ===== Stop highlighting =====
+function stopHighlight(outputId) {
+  clearInterval(highlightIntervals[outputId]);
+  const el = document.getElementById(outputId);
   el.innerHTML = el.innerText;
 }
 
-// ===== Dark Mode Logic =====
-const toggle = document.getElementById("darkToggle");
-
-if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark");
-  toggle.checked = true;
-}
-
-toggle.addEventListener("change", () => {
-  document.body.classList.toggle("dark");
-  localStorage.setItem(
-    "theme",
-    document.body.classList.contains("dark") ? "dark" : "light"
-  );
+// ===== Dark mode toggle =====
+const darkToggle = document.getElementById("darkToggle");
+darkToggle.addEventListener("change", () => {
+  document.body.classList.toggle("dark-mode", darkToggle.checked);
 });
