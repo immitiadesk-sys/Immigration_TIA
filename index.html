@@ -4,14 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nepal Immigration Translator</title>
+
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  <audio id="cloudTtsAudio" hidden></audio>
   <div class="container">
+
     <header>
-      <h1>🇳🇵 Nepal Immigration Translator</h1>
+      <div class="header-top">
+        <h1>🇳🇵 Nepal Immigration Translator</h1>
+
+        <!-- 🌙 Dark Mode Toggle -->
+        <label class="switch">
+          <input type="checkbox" id="darkToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+
       <p>Quickly translate immigration officer questions into major world languages</p>
     </header>
 
@@ -22,15 +33,15 @@
       <textarea id="customInput" placeholder="Type your sentence here..."></textarea>
       <div id="customButtons" class="button-group"></div>
       <div id="customOutput" class="translation-output"></div>
+      <div id="customTranslit" class="transliteration-output"></div>
     </section>
+
   </div>
 
   <footer>
     <p>Made with ❤️ for travellers to Nepal | Powered by Google Translate API</p>
   </footer>
 
-  <!-- ✅ Make sure your JS file is linked correctly -->
   <script src="script.js"></script>
 </body>
 </html>
-
