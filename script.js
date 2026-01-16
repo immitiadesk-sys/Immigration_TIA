@@ -94,7 +94,7 @@ Object.entries(languages).forEach(([name, { code, flag, color }]) => {
 
 // ================== TRANSLATION ==================
 async function translateText(text, targetLang, outputId, translitId) {
-  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&dt=rm&q=${encodeURIComponent(text)}`;
 
   try {
     const res = await fetch(url);
@@ -149,7 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const darkToggle = document.getElementById("darkToggle");
   if (!darkToggle) return;
 
-  // Load saved theme
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
     document.body.classList.add("dark");
