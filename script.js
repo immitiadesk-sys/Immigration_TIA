@@ -17,12 +17,16 @@ const languages = {
 const questions = [
   "Hello, how are you?",
   "Give me your passport and boarding pass please",
+  "Give me your boarding pass please",
+  "Is this your first time in Nepal for this visa year?",
   "Look at the camera please",
   "Which country are you coming from?",
   "Have you applied for a visa?",
   "Have you paid the visa fee?",
+  "Please show me your visa application",
   "Welcome to Nepal, have a great time",
   "You can collect your luggage downstairs from the Customs area.",
+  "At first you need to apply a visa, for that go to the left corner over there, there are kiosk machines to apply visa, apply your visa, take a photo of the application, then proceed to the visa fee collection counter on the right corner. Once you get your payment receipt, come back to the desk",
   "How long are you planning to stay?",
   "Where will you be staying during your visit?",
   "Have you visited Nepal before?",
@@ -160,3 +164,4 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("theme", darkToggle.checked ? "dark" : "light");
   });
 });
+
