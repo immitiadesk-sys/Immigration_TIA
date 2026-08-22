@@ -36,12 +36,150 @@ header p {
   font-size: 0.95rem;
 }
 
+/* Toolbar & Speed Controls */
+.toolbar {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.speed-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.speed-btn {
+  background: #e0f2f1;
+  color: #00796b;
+  border: 1px solid #00796b;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.speed-btn.active {
+  background: #00796b;
+  color: white;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.section-divider {
+  border: 0;
+  border-top: 1px solid #ddd;
+  margin: 20px 0;
+}
+
+/* Traveler Reply Mode Section */
+#reply-section {
+  background: #f0fdf4;
+  padding: 15px 20px;
+  border-radius: 8px;
+  border-left: 6px solid #10b981;
+  margin-bottom: 20px;
+}
+
+#reply-section h2 {
+  font-size: 1.15rem;
+  color: #047857;
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.section-desc {
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin-bottom: 12px;
+}
+
+.reply-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.reply-controls select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.mic-btn {
+  background: #10b981;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mic-btn.listening {
+  background: #ef4444;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.mic-status {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.english-output {
+  background: #d1fae5 !important;
+  color: #065f46;
+  font-weight: 600;
+}
+
 .question {
   background: #f9f9f9;
   padding: 12px 15px;
   border-left: 6px solid #00796b;
   border-radius: 8px;
   margin: 15px 0;
+  position: relative;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.star-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0;
+  color: #ccc;
+  transition: transform 0.2s;
+}
+
+.star-btn.favorited {
+  color: #ffc107;
+}
+
+.star-btn:hover {
+  transform: scale(1.2);
 }
 
 .button-group {
@@ -80,6 +218,7 @@ textarea {
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 1rem;
+  box-sizing: border-box;
 }
 
 footer {
@@ -130,7 +269,7 @@ footer {
   transform: translateX(20px);
 }
 
-/* ===== DARK MODE ===== */
+/* ===== DARK MODE STYLING ===== */
 body.dark {
   background: #0f172a;
   color: #e5e7eb;
@@ -144,8 +283,43 @@ body.dark header h1 {
   color: #5eead4;
 }
 
-body.dark header p {
+body.dark header p, body.dark .speed-selector {
   color: #9ca3af;
+}
+
+body.dark .speed-btn {
+  background: #1f2933;
+  color: #5eead4;
+  border-color: #5eead4;
+}
+
+body.dark .speed-btn.active {
+  background: #5eead4;
+  color: #0f172a;
+}
+
+body.dark #reply-section {
+  background: #064e3b;
+  border-left-color: #34d399;
+}
+
+body.dark #reply-section h2 {
+  color: #34d399;
+}
+
+body.dark .section-desc, body.dark .mic-status {
+  color: #9ca3af;
+}
+
+body.dark .reply-controls select {
+  background: #1f2933;
+  color: #e5e7eb;
+  border-color: #374151;
+}
+
+body.dark .english-output {
+  background: #065f46 !important;
+  color: #a7f3d0;
 }
 
 body.dark .question {
@@ -161,6 +335,10 @@ body.dark .translation-output {
 body.dark textarea {
   background: #1f2933;
   color: #e5e7eb;
+  border-color: #374151;
+}
+
+body.dark .section-divider {
   border-color: #374151;
 }
 
