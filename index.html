@@ -18,16 +18,51 @@
         <h1>🇳🇵 Nepal Immigration Translator</h1>
 
         <!-- 🌙 Dark Mode Toggle -->
-        <label class="switch">
+        <label class="switch" title="Toggle Dark Mode">
           <input type="checkbox" id="darkToggle">
           <span class="slider"></span>
         </label>
       </div>
       <p>Language translation tool for Nepal Immigration</p>
+
+      <!-- ⚙️ Global Control Bar (Speed Control) -->
+      <div class="toolbar">
+        <div class="speed-selector">
+          <span>Speech Speed:</span>
+          <button class="speed-btn active" data-speed="1.0">1.0x</button>
+          <button class="speed-btn" data-speed="0.75">0.75x (Slow)</button>
+        </div>
+      </div>
     </header>
 
+    <!-- ⭐ Pinned / Favorite Questions Section -->
+    <section id="pinned-section" class="hidden">
+      <h2>⭐ Quick Pinned Questions</h2>
+      <div id="pinned-container"></div>
+      <hr class="section-divider">
+    </section>
+
+    <!-- 🎙️ Traveler Reply Mode (Speech Recognition) -->
+    <section id="reply-section">
+      <h2>🎙️ Traveler Reply Mode (Listen & Translate to English)</h2>
+      <p class="section-desc">Let travelers speak in their native language to translate their response back to English.</p>
+      
+      <div class="reply-controls">
+        <select id="replyLangSelect"></select>
+        <button id="micBtn" class="mic-btn">🎙️ Start Listening</button>
+      </div>
+      
+      <div id="micStatus" class="mic-status">Microphone ready. Select language and click listen.</div>
+      <div id="replyOriginal" class="translation-output hidden"></div>
+      <div id="replyEnglish" class="translation-output english-output hidden"></div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 📋 All Questions Section -->
     <section id="questions"></section>
 
+    <!-- 📝 Custom Translation Section -->
     <section id="custom-section">
       <h2>📝 Translate Your Own Sentence</h2>
       <textarea id="customInput" placeholder="Type your sentence here..."></textarea>
