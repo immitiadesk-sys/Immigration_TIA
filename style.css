@@ -149,6 +149,49 @@ header p {
   font-weight: 600;
 }
 
+/* ===== FILTER CHIPS & BADGES ===== */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.filter-chip {
+  background: #e2e8f0;
+  color: #334155;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-chip:hover {
+  background: #cbd5e1;
+}
+
+.filter-chip.active {
+  background: #00796b;
+  color: white;
+}
+
+.badge {
+  display: inline-block;
+  background: #e0f2f1;
+  color: #00796b;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  margin-right: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .question {
   background: #f9f9f9;
   padding: 12px 15px;
@@ -210,6 +253,13 @@ button {
   margin-top: 4px;
   font-size: 0.85rem;
   color: #777;
+}
+
+#replyTranslit {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #047857;
 }
 
 textarea {
@@ -322,6 +372,25 @@ body.dark .english-output {
   color: #a7f3d0;
 }
 
+body.dark .filter-chip {
+  background: #1f2933;
+  color: #9ca3af;
+}
+
+body.dark .filter-chip:hover {
+  background: #374151;
+}
+
+body.dark .filter-chip.active {
+  background: #5eead4;
+  color: #0f172a;
+}
+
+body.dark .badge {
+  background: #164e63;
+  color: #5eead4;
+}
+
 body.dark .question {
   background: #1f2933;
   border-left-color: #5eead4;
@@ -330,6 +399,10 @@ body.dark .question {
 body.dark .translation-output {
   background: #164e63;
   color: #ecfeff;
+}
+
+body.dark #replyTranslit {
+  color: #34d399;
 }
 
 body.dark textarea {
