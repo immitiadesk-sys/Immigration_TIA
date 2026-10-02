@@ -13,38 +13,39 @@ const languages = {
   Portuguese: { code: "pt", flag: "🇵🇹", color: "#43AA8B" }
 };
 
-// ================== QUESTIONS ==================
+// ================== QUESTIONS WITH CATEGORIES ==================
 const questions = [
-  "Hello, how are you?",
-  "Give me your passport and boarding pass please",
-  "Give me your boarding pass please",
-  "Is this your first time in Nepal for this visa year?",
-  "Look at the camera please",
-  "Which country are you coming from?",
-  "Have you applied for a visa?",
-  "Have you paid the visa fee?",
-  "Please show me your visa application",
-  "Welcome to Nepal, have a great time",
-  "You can collect your luggage downstairs from the Customs area.",
-  "At first you need to apply a visa, for that go to the left corner over there, there are kiosk machines to apply visa, apply your visa, take a photo of the application, then proceed to the visa fee collection counter on the right corner. Once you get your payment receipt, come back to the desk",
-  "How long are you planning to stay?",
-  "Where will you be staying during your visit?",
-  "Have you visited Nepal before?",
-  "Are you traveling alone or with someone?",
-  "Do you have sufficient funds for your stay?",
-  "Thank you for visiting Nepal. Have a safe flight.",
-  "What is your occupation?",
-  "Are you carrying any restricted items?",
-  "Are you visiting for tourism, business, or other reasons?",
-  "Do you have travel insurance?",
-  "How was your Nepal stay? Do you like Nepal?",
-  "Who is sponsoring your visit?",
-  "Do you have any feedback or complaint regarding your stay in Nepal?"
+  { text: "Hello, how are you?", category: "General" },
+  { text: "Give me your passport and boarding pass please", category: "Visa & Docs" },
+  { text: "Give me your boarding pass please", category: "Visa & Docs" },
+  { text: "Is this your first time in Nepal for this visa year?", category: "Visa & Docs" },
+  { text: "Look at the camera please", category: "Security" },
+  { text: "Which country are you coming from?", category: "Travel Details" },
+  { text: "Have you applied for a visa?", category: "Visa & Docs" },
+  { text: "Have you paid the visa fee?", category: "Visa & Docs" },
+  { text: "Please show me your visa application", category: "Visa & Docs" },
+  { text: "Welcome to Nepal, have a great time", category: "General" },
+  { text: "You can collect your luggage downstairs from the Customs area.", category: "Security" },
+  { text: "At first you need to apply a visa, for that go to the left corner over there, there are kiosk machines to apply visa, apply your visa, take a photo of the application, then proceed to the visa fee collection counter on the right corner. Once you get your payment receipt, come back to the desk", category: "Visa & Docs" },
+  { text: "How long are you planning to stay?", category: "Travel Details" },
+  { text: "Where will you be staying during your visit?", category: "Travel Details" },
+  { text: "Have you visited Nepal before?", category: "Travel Details" },
+  { text: "Are you traveling alone or with someone?", category: "Travel Details" },
+  { text: "Do you have sufficient funds for your stay?", category: "Travel Details" },
+  { text: "Thank you for visiting Nepal. Have a safe flight.", category: "Farewell" },
+  { text: "What is your occupation?", category: "Travel Details" },
+  { text: "Are you carrying any restricted items?", category: "Security" },
+  { text: "Are you visiting for tourism, business, or other reasons?", category: "Travel Details" },
+  { text: "Do you have travel insurance?", category: "Travel Details" },
+  { text: "How was your Nepal stay? Do you like Nepal?", category: "Farewell" },
+  { text: "Who is sponsoring your visit?", category: "Travel Details" },
+  { text: "Do you have any feedback or complaint regarding your stay in Nepal?", category: "Farewell" }
 ];
 
 // ================== APP STATE ==================
 let availableVoices = [];
 let currentSpeechSpeed = 1.0;
+let currentFilter = "All";
 let favorites = JSON.parse(localStorage.getItem("immigration_favorites")) || [];
 const highlightIntervals = {};
 
@@ -56,7 +57,11 @@ speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
 
 function getPreferredVoice(lang) {
-  return availableVoices.find(v => v.lang.startsWith(lang)) || null;
+  const lowerLang = lang.toLowerCase();
+  return availableVoices.find(v => 
+    v.lang.toLowerCase().startsWith(lowerLang) || 
+    v.lang.toLowerCase().includes(lowerLang)
+  ) || null;
 }
 
 // ================== RENDER UI ==================
@@ -64,19 +69,39 @@ function renderApp() {
   const questionsContainer = document.getElementById("questions");
   const pinnedContainer = document.getElementById("pinned-container");
   const pinnedSection = document.getElementById("pinned-section");
+  const filterContainer = document.getElementById("filterContainer");
 
   questionsContainer.innerHTML = "";
   pinnedContainer.innerHTML = "";
+  filterContainer.innerHTML = "";
+
+  // 1. Render Filter Chips
+  const categories = ["All", "General", "Visa & Docs", "Travel Details", "Security", "Farewell"];
+  categories.forEach(cat => {
+    const chip = document.createElement("button");
+    chip.className = `filter-chip ${currentFilter === cat ? 'active' : ''}`;
+    chip.textContent = cat;
+    chip.onclick = () => {
+      currentFilter = cat;
+      renderApp();
+    };
+    filterContainer.appendChild(chip);
+  });
 
   let hasPinned = false;
 
-  questions.forEach((q, i) => {
+  questions.forEach((item, i) => {
+    const q = item.text;
+    const cat = item.category;
     const isFav = favorites.includes(q);
     if (isFav) hasPinned = true;
 
     const createCardHTML = (uniqueId) => `
       <div class="question-header">
-        <strong>${i + 1}. ${q}</strong>
+        <div>
+          <span class="badge">${cat}</span>
+          <strong>${i + 1}. ${q}</strong>
+        </div>
         <button class="star-btn ${isFav ? 'favorited' : ''}" onclick="toggleFavorite('${q.replace(/'/g, "\\'")}')" title="Pin to Top">
           ${isFav ? '⭐' : '☆'}
         </button>
@@ -85,7 +110,7 @@ function renderApp() {
         ${Object.entries(languages).map(([name, { code, flag, color }]) => `
           <button style="background:${color}"
             onclick="translateText('${q.replace(/'/g, "\\'")}', '${code}', 'output-${uniqueId}', 'translit-${uniqueId}')">
-            ${flag} ${name}
+            ${flag}${name}
           </button>
         `).join("")}
       </div>
@@ -93,16 +118,18 @@ function renderApp() {
       <div id="translit-${uniqueId}" class="transliteration-output"></div>
     `;
 
-    const mainDiv = document.createElement("div");
-    mainDiv.className = "question";
-    mainDiv.innerHTML = createCardHTML(`main-${i}`);
-    questionsContainer.appendChild(mainDiv);
-
     if (isFav) {
       const pinDiv = document.createElement("div");
       pinDiv.className = "question";
       pinDiv.innerHTML = createCardHTML(`pin-${i}`);
       pinnedContainer.appendChild(pinDiv);
+    }
+
+    if (currentFilter === "All" || cat === currentFilter) {
+      const mainDiv = document.createElement("div");
+      mainDiv.className = "question";
+      mainDiv.innerHTML = createCardHTML(`main-${i}`);
+      questionsContainer.appendChild(mainDiv);
     }
   });
 
@@ -157,6 +184,7 @@ function setupSpeechRecognition() {
   const micStatus = document.getElementById("micStatus");
   const replyLangSelect = document.getElementById("replyLangSelect");
   const replyOriginal = document.getElementById("replyOriginal");
+  const replyTranslit = document.getElementById("replyTranslit");
   const replyEnglish = document.getElementById("replyEnglish");
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -188,6 +216,7 @@ function setupSpeechRecognition() {
     micBtn.textContent = "🔴 Listening...";
     micStatus.innerText = "Listening to traveler... Speak now.";
     replyOriginal.classList.add("hidden");
+    replyTranslit.classList.add("hidden");
     replyEnglish.classList.add("hidden");
   };
 
@@ -198,13 +227,25 @@ function setupSpeechRecognition() {
     replyOriginal.innerText = `Original (${selectedLang}): "${spokenText}"`;
     replyOriginal.classList.remove("hidden");
 
-    // Translate back to English using Google Translate endpoint (sl = source, tl = en)
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${selectedLang}&tl=en&dt=t&q=${encodeURIComponent(spokenText)}`;
+    // Translate back to English and fetch romanization (dt=rm)
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${selectedLang}&tl=en&dt=t&dt=rm&q=${encodeURIComponent(spokenText)}`;
     
     try {
       const res = await fetch(url);
       const data = await res.json();
       const translatedEnglish = data[0][0][0];
+
+      let translitText = "";
+      if (data[0]) {
+        translitText = data[0].map(item => item[3]).filter(Boolean).join(" ");
+      }
+
+      if (translitText) {
+        replyTranslit.innerText = `Phonetic / Transliteration: "${translitText.toUpperCase()}"`;
+        replyTranslit.classList.remove("hidden");
+      } else {
+        replyTranslit.classList.add("hidden");
+      }
 
       replyEnglish.innerText = `English Translation: "${translatedEnglish}"`;
       replyEnglish.classList.remove("hidden");
@@ -228,7 +269,7 @@ function setupSpeechRecognition() {
   };
 }
 
-// ================== TRANSLATION & SPEECH (WITH BENGALI SAFEGUARD) ==================
+// ================== TRANSLATION & SPEECH ==================
 async function translateText(text, targetLang, outputId, translitId) {
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&dt=rm&q=${encodeURIComponent(text)}`;
 
@@ -242,7 +283,19 @@ async function translateText(text, targetLang, outputId, translitId) {
     document.getElementById(translitId).innerText = translit;
 
     const utter = new SpeechSynthesisUtterance(translated);
-    utter.lang = targetLang;
+    
+    // Map codes to locale tags for speech stability (fixes Bengali)
+    let speechLang = targetLang;
+    if (targetLang === "bn") speechLang = "bn-BD";
+    else if (targetLang === "hi") speechLang = "hi-IN";
+    else if (targetLang === "es") speechLang = "es-ES";
+    else if (targetLang === "fr") speechLang = "fr-FR";
+    else if (targetLang === "de") speechLang = "de-DE";
+    else if (targetLang === "it") speechLang = "it-IT";
+    else if (targetLang === "ru") speechLang = "ru-RU";
+    else if (targetLang === "pt") speechLang = "pt-PT";
+
+    utter.lang = speechLang;
     utter.rate = currentSpeechSpeed;
 
     const voice = getPreferredVoice(targetLang);
@@ -250,7 +303,7 @@ async function translateText(text, targetLang, outputId, translitId) {
     if (voice) {
       utter.voice = voice;
     } else {
-      console.warn(`Native speech voice pack not found locally for: ${targetLang}. Displaying visual text only.`);
+      console.warn(`Native speech voice pack not found locally for: ${targetLang}. Using default.`);
     }
 
     utter.onstart = () => highlightText(outputId);
