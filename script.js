@@ -269,7 +269,7 @@ function setupSpeechRecognition() {
   };
 }
 
-// ================== TRANSLATION & SPEECH ==================
+// ================== TRANSLATION & SPEECH (WITH SAFEGUARD) ==================
 async function translateText(text, targetLang, outputId, translitId) {
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&dt=rm&q=${encodeURIComponent(text)}`;
 
@@ -281,6 +281,11 @@ async function translateText(text, targetLang, outputId, translitId) {
 
     document.getElementById(outputId).innerText = translated;
     document.getElementById(translitId).innerText = translit;
+
+    if (!('speechSynthesis' in window)) {
+      console.warn("Speech Synthesis API not supported.");
+      return;
+    }
 
     const utter = new SpeechSynthesisUtterance(translated);
     
@@ -303,15 +308,21 @@ async function translateText(text, targetLang, outputId, translitId) {
     if (voice) {
       utter.voice = voice;
     } else {
-      console.warn(`Native speech voice pack not found locally for: ${targetLang}. Using default.`);
+      console.warn(`System voice pack not found for ${targetLang}. Attempting default synthesis.`);
+      utter.voice = null; 
     }
 
     utter.onstart = () => highlightText(outputId);
     utter.onend = () => stopHighlight(outputId);
-    utter.onerror = () => stopHighlight(outputId);
+    utter.onerror = (e) => {
+      console.error("Speech synthesis error:", e);
+      stopHighlight(outputId);
+    };
 
     speechSynthesis.cancel();
-    speechSynthesis.speak(utter);
+    setTimeout(() => {
+      speechSynthesis.speak(utter);
+    }, 50);
 
   } catch (err) {
     document.getElementById(outputId).innerText = "Translation failed";
