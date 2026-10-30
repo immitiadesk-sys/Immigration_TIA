@@ -1,16 +1,39 @@
 // ================== LANGUAGE CONFIG ==================
 const languages = {
-  Spanish: { code: "es", flag: "🇪🇸", color: "#F94144" },
-  Italian: { code: "it", flag: "🇮🇹", color: "#90BE6D" },
-  Russian: { code: "ru", flag: "🇷🇺", color: "#577590" },
-  Chinese: { code: "zh-CN", flag: "🇨🇳", color: "#F3722C" },
-  Japanese: { code: "ja", flag: "🇯🇵", color: "#F9C74F" },
-  Korean: { code: "ko", flag: "🇰🇷", color: "#43AA8B" },
-  French: { code: "fr", flag: "🇫🇷", color: "#277DA1" },
-  Bengali: { code: "bn", flag: "🇧🇩", color: "#FF6D00" },
-  German: { code: "de", flag: "🇩🇪", color: "#6A4C93" },
-  Hindi: { code: "hi", flag: "🇮🇳", color: "#F3722C" },
-  Portuguese: { code: "pt", flag: "🇵🇹", color: "#43AA8B" }
+
+  Arabic:     { code: "ar",  flag: "🇸🇦", color: "#2D6A4F" },
+  Bengali:    { code: "bn",  flag: "🇧🇩", color: "#FF6D00" },
+  Burmese:    { code: "my",  flag: "🇲🇲", color: "#FFC107" },
+  Chinese:    { code: "zh-CN", flag: "🇨🇳", color: "#F3722C" },
+  Czech:      { code: "cs",  flag: "🇨🇿", color: "#11457E" },
+  Dutch:      { code: "nl",  flag: "🇳🇱", color: "#F77F00" },
+  English:    { code: "en",  flag: "🇬🇧", color: "#4361EE" },
+  Filipino:   { code: "fil", flag: "🇵🇭", color: "#0038A8" },
+  French:     { code: "fr",  flag: "🇫🇷", color: "#277DA1" },
+  German:     { code: "de",  flag: "🇩🇪", color: "#6A4C93" },
+  Greek:      { code: "el",  flag: "🇬🇷", color: "#1D3557" },
+  Hebrew:     { code: "he",  flag: "🇮🇱", color: "#005EB8" },
+  Hindi:      { code: "hi",  flag: "🇮🇳", color: "#F3722C" },
+  Indonesian: { code: "id",  flag: "🇮🇩", color: "#E63946" },
+  Italian:    { code: "it",  flag: "🇮🇹", color: "#90BE6D" },
+  Japanese:   { code: "ja",  flag: "🇯🇵", color: "#F9C74F" },
+  Korean:     { code: "ko",  flag: "🇰🇷", color: "#43AA8B" },
+  Malay:      { code: "ms",  flag: "🇲🇾", color: "#F4A261" },
+  Nepali:     { code: "ne",  flag: "🇳🇵", color: "#DC143C" },
+  Persian:    { code: "fa",  flag: "🇮🇷", color: "#198754" },
+  Filipino:   { code: "fil", flag: "🇵🇭", color: "#0038A8" },
+  Polish:     { code: "pl",  flag: "🇵🇱", color: "#DC143C" },
+  Portuguese: { code: "pt",  flag: "🇵🇹", color: "#43AA8B" },
+  Russian:    { code: "ru",  flag: "🇷🇺", color: "#577590" },
+  Sinhala:    { code: "si",  flag: "🇱🇰", color: "#8D5524" },
+  Spanish:    { code: "es",  flag: "🇪🇸", color: "#F94144" },
+  Swedish:    { code: "sv",  flag: "🇸🇪", color: "#0077B6" },
+  Thai:       { code: "th",  flag: "🇹🇭", color: "#7B2CBF" },
+  Turkish:    { code: "tr",  flag: "🇹🇷", color: "#E63946" },
+  Ukrainian:  { code: "uk",  flag: "🇺🇦", color: "#3399FF" },
+  Urdu:       { code: "ur",  flag: "🇵🇰", color: "#006400" },
+  Vietnamese: { code: "vi",  flag: "🇻🇳", color: "#DA251D" }
+
 };
 
 // ================== QUESTIONS WITH CATEGORIES ==================
