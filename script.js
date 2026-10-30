@@ -3,6 +3,7 @@ const languages = {
 
   Bengali:    { code: "bn",  flag: "🇧🇩", color: "#FF6D00" },
   Chinese:    { code: "zh-CN", flag: "🇨🇳", color: "#F3722C" },
+  English:     { code: "en",  flag: "🇬🇧", color: "#4361EE" },
   French:     { code: "fr",  flag: "🇫🇷", color: "#277DA1" },
   German:     { code: "de",  flag: "🇩🇪", color: "#6A4C93" },
   Hindi:      { code: "hi",  flag: "🇮🇳", color: "#F3722C" },
