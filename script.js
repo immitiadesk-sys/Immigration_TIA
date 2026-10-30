@@ -23,7 +23,7 @@ const languages = {
 const questions = [
 
   // 1. General Communication
-  { text: "Hello. How are you today?", category: "General" },
+  { text: "Hello, How are you today?", category: "General" },
   { text: "Welcome to Nepal.", category: "General" },
   { text: "How may I assist you?", category: "General" },
   { text: "Please wait a moment while I verify your documents.", category: "General" },
